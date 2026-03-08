@@ -1,16 +1,44 @@
 <template>
     <div class="campo">
-        <label for="nome">{{ label }}</label>
-        <input id="nome" type="text" :placeholder="placeholder" :autocomplete="autocomplete">
+        <label for="nome">{{ label }} <span v-if="required">*</span></label>
+        <input id="nome" type="text" :placeholder="placeholder" :autocomplete="autocomplete" :required="required" v-model="inputValue">
     </div>
 </template>
 
-<script setup lang="ts">
-const props = defineProps<{
-    label: string;
-    placeholder: string;
-    autocomplete: string;
-}>();
+<script setup>
+
+const emit = defineEmits(['update:modelValue']);
+
+const inputValue = computed({
+    get() {
+        return props.modelValue;
+    },
+    set(value) {
+        emit('update:modelValue', value);
+    }
+});
+const props = defineProps({
+    label: {
+        type: String,
+        required: true
+    },
+    placeholder: {
+        type: String,
+        required: true
+    },
+    autocomplete: {
+        type: String,
+        required: true,
+    },
+    modelValue: {
+        type: String,
+        default: ''
+    },
+    required: {
+        type: Boolean,
+        required: true
+    }
+});
 </script>
 
 <style scoped>
@@ -40,16 +68,21 @@ const props = defineProps<{
     border: 1px solid #d1d5db;
     border-radius: 9999px;
     font-family: "Figtree", sans-serif;
+    font-weight: 300;
     font-size: 1rem;
     background: #fff;
     outline: none;
 }
 
 .campo input:focus {
-    border-color: #000;
+    border-color: var(--cor-preto);
 }
 
 .campo input::placeholder {
     color: #9ca3af;
+}
+
+.campo label span {
+    color: red;
 }
 </style>

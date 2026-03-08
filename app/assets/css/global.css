@@ -6,3 +6,7 @@ html, body {
     box-sizing: border-box;
     font-family: 'Figtree', sans-serif;
 }
+
+:root {
+    --cor-preto: #000;
+}
