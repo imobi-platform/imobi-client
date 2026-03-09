@@ -57,7 +57,7 @@ const props = defineProps({
     background-color: #fff;
     color: #000;
     font-family: "Figtree", sans-serif;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.875rem;
     pointer-events: none;
 }

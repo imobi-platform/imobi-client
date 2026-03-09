@@ -72,7 +72,7 @@ const seletedLabel = computed(() => {
     background-color: #fff;
     color: #000;
     font-family: "Figtree", sans-serif;
-    font-weight: 300;
+    font-weight: 600;
     font-size: 0.875rem;
     pointer-events: none;
 }
