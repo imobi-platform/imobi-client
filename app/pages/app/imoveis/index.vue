@@ -6,18 +6,28 @@
         {{ formatarMoeda(data.row.valor) }}
       </template>
       <template #cell(actions)="data">
-        <Button variant="primary" size="sm">Editar</Button>
-        <Button variant="danger" size="sm">Excluir</Button>
+        <DropdownMenu :options="opcoesParaLinha(data.row)" />
       </template>
     </Table>
   </div>
 </template>
 
 <script setup>
-import { DoorOpen } from 'lucide-vue-next'
+import { DoorOpen, Pencil, Trash2 } from 'lucide-vue-next'
 import SectionLabel from '@/components/SectionLabel.vue'
 
 definePageMeta({ layout: 'painel' })
+
+function opcoesParaLinha(row) {
+  return [
+    { id: 'editar', icon: Pencil, label: 'Editar', to: `/app/imoveis/editar/${row.id}` },
+    { id: 'excluir', icon: Trash2, label: 'Excluir', onClick: () => excluir(row) },
+  ]
+}
+
+function excluir(row) {
+  console.log('Excluir', row)
+}
 
 const fields = [
   { key: 'id', label: 'ID', align: 'center' },
