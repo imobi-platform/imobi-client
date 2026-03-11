@@ -82,6 +82,7 @@ import {
     ArrowLeftRight,
     PlusSquare,
     MinusSquare,
+    DoorOpen,
 } from 'lucide-vue-next'
 
 const grupos = [
@@ -89,10 +90,7 @@ const grupos = [
         titulo: 'GESTÃO',
         itens: [
             { to: '/app', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-            { to: '/app/contatos', label: 'Contatos', icon: Users },
-            { to: '/app/projetos', label: 'Projetos', icon: SquareArrowOutUpRight },
-            { to: '/app/tarefas', label: 'Tarefas', icon: ClipboardCheck },
-            { to: '/app/propostas', label: 'Propostas', icon: FileText },
+            { to: '/app/imoveis', label: 'Meus Imóveis', icon: DoorOpen },
             { to: '/app/contratos', label: 'Contratos', icon: PenLine },
         ],
     },
