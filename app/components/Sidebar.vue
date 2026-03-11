@@ -203,7 +203,7 @@ const showPopover = computed(() => props.collapsed && popoverLabel.value && popo
     background: transparent;
     color: #374151;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 9999px;
     transition: background 0.2s;
 }
 
@@ -213,7 +213,7 @@ const showPopover = computed(() => props.collapsed && popoverLabel.value && popo
 
 .sidebar--recolhida .sidebar-toggle {
     position: absolute;
-    top: 0.5rem;
+    top: 14px;
     right: 0;
     transform: translateX(50%);
     width: 22px;
