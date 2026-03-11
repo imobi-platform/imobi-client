@@ -104,7 +104,7 @@ const props = defineProps({
 }
 
 .table--striped .table-row:nth-child(even) td {
-  background-color: #f9fafb;
+  background-color: #fff;
 }
 
 .table-row-empty .table-td-empty {
