@@ -1,7 +1,17 @@
+<!--
+  DropdownMenu: menu que abre ao clicar no ícone (⋯).
+  Igual ao Select.vue em estrutura: wrapper + gatilho + lista.
+  Cada opção em options pode ter:
+  - to (string): rota interna → NuxtLink
+  - href (string): link externo → <a>
+  - onClick (função): ação → botão que chama e fecha o menu
+  A lista é renderizada no body (Teleport) para não ser cortada dentro de tabelas.
+-->
 <template>
-  <div ref="wrapRef" class="dropdown">
+  <div ref="refWrap" class="dropdown" :class="{ ativo: isOpen }">
+    <!-- Gatilho: ícone MoreHorizontal (como o .input do Select) -->
     <button
-      ref="triggerRef"
+      ref="refTrigger"
       type="button"
       class="trigger"
       aria-haspopup="true"
@@ -10,38 +20,43 @@
     >
       <MoreHorizontal class="trigger-icon" />
     </button>
+
+    <!-- Lista: só exibe quando listaPronta, para não piscar nem abrir no lugar errado na 1ª vez -->
     <Teleport to="body">
       <div
-        ref="listaRef"
-        v-show="isOpen"
-        class="lista lista--teleport"
+        ref="refLista"
+        v-show="isOpen && listaPronta"
+        class="lista"
         :style="listaStyle"
       >
         <div class="conteudo">
           <template v-for="opt in options" :key="opt.id">
+            <!-- Opção com rota interna -->
             <NuxtLink
               v-if="opt.to"
               :to="opt.to"
-              class="opcao opcao--link"
-              @click="closeMenu"
+              class="opcao"
+              @click="fechar"
             >
               <component :is="opt.icon" class="opcao-icon" />
               <span>{{ opt.label }}</span>
             </NuxtLink>
+            <!-- Opção com link externo -->
             <a
               v-else-if="opt.href"
               :href="opt.href"
-              class="opcao opcao--link"
-              @click="closeMenu"
+              class="opcao"
+              @click="fechar"
             >
               <component :is="opt.icon" class="opcao-icon" />
               <span>{{ opt.label }}</span>
             </a>
+            <!-- Opção com função: clica → executa e fecha -->
             <button
               v-else-if="opt.onClick"
               type="button"
               class="opcao"
-              @click="opt.onClick(); closeMenu()"
+              @click="opt.onClick(); fechar()"
             >
               <component :is="opt.icon" class="opcao-icon" />
               <span>{{ opt.label }}</span>
@@ -56,57 +71,70 @@
 <script setup>
 import { MoreHorizontal } from 'lucide-vue-next'
 
-const wrapRef = ref(null)
-const triggerRef = ref(null)
-const listaRef = ref(null)
+// Refs: wrapper (para click outside), gatilho (para posição), lista (para click outside)
+const refWrap = ref(null)
+const refTrigger = ref(null)
+const refLista = ref(null)
+
 const isOpen = ref(false)
+// true só depois de atualizarPosicao(), assim a lista nunca aparece com posição errada (evita piscar)
+const listaPronta = ref(false)
 const listaStyle = ref({})
 
 defineProps({
   options: { type: Array, required: true },
 })
 
-function closeMenu() {
+// Fecha o menu e remove o listener de clique fora
+function fechar() {
   isOpen.value = false
-  document.removeEventListener('click', onClickOutside)
+  listaPronta.value = false
+  document.removeEventListener('click', aoClicarFora)
 }
 
-function updateListaPosition() {
-  if (!triggerRef.value) return
-  const rect = triggerRef.value.getBoundingClientRect()
+// Calcula top/left da lista a partir da posição do gatilho (para ficar logo abaixo, alinhado à direita)
+function atualizarPosicao() {
+  if (!refTrigger.value) return
+  const r = refTrigger.value.getBoundingClientRect()
   const minW = 140
   listaStyle.value = {
     position: 'fixed',
-    top: `${rect.bottom + 4}px`,
-    left: `${rect.right - minW}px`,
+    top: `${r.bottom + 4}px`,
+    left: `${r.right - minW}px`,
     minWidth: `${minW}px`,
   }
 }
 
+// Abre ou fecha. Ao abrir: calcula posição primeiro, só então marca listaPronta (evita piscar)
 function toggle() {
-  isOpen.value = !isOpen.value
   if (isOpen.value) {
-    nextTick(() => {
-      updateListaPosition()
-      document.addEventListener('click', onClickOutside)
-    })
-  } else {
-    document.removeEventListener('click', onClickOutside)
+    fechar()
+    return
   }
+  isOpen.value = true
+  listaPronta.value = false
+  nextTick(() => {
+    atualizarPosicao()
+    listaPronta.value = true
+    document.addEventListener('click', aoClicarFora)
+  })
 }
 
-function onClickOutside(e) {
-  const inside = wrapRef.value?.contains(e.target) || listaRef.value?.contains(e.target)
-  if (!inside) closeMenu()
+// Se o clique não foi no gatilho nem na lista, fecha
+function aoClicarFora(e) {
+  const dentro = refWrap.value?.contains(e.target) || refLista.value?.contains(e.target)
+  if (!dentro) fechar()
 }
 </script>
 
 <style scoped>
+/* Wrapper: relativo para o gatilho; classe .ativo quando aberto (igual Select .campo.ativo) */
 .dropdown {
   position: relative;
   display: inline-block;
 }
 
+/* Gatilho: botão com ícone (equivalente ao .input do Select) */
 .trigger {
   display: flex;
   align-items: center;
@@ -131,17 +159,14 @@ function onClickOutside(e) {
   height: 18px;
 }
 
+/* Lista: mesmo estilo do Select (.lista + .conteudo). Posição vem de :style quando teleportada */
 .lista {
   min-width: 140px;
   background: #fff;
   border: 1px solid #d1d5db;
   border-radius: 20px;
   padding: 5px;
-  transition: opacity 0.2s;
   z-index: 9999;
-}
-
-.lista--teleport {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -150,6 +175,7 @@ function onClickOutside(e) {
   flex-direction: column;
 }
 
+/* Cada opção: mesmo estilo do .conteudo button do Select (ícone + label) */
 .opcao {
   display: flex;
   align-items: center;
