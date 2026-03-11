@@ -2,15 +2,10 @@
   <div class="painel" :class="{ 'painel--recolhida': isCollapsed }">
     <Sidebar :collapsed="isCollapsed" @toggle="toggleSidebar" />
     <header class="header">
-      <!-- <div class="header-user">
-        <div class="header-avatar">
-          <img src="https://i.pravatar.cc/300" alt="Profile">
-        </div>
-        <div class="header-info">
-          <span class="header-name">John Doe</span>
-          <span class="header-email">john.doe@example.com</span>
-        </div>
-      </div> -->
+      <div class="header-item">
+        <Undo2Icon class="header-item-icon" />
+        <span class="header-item-text">Voltar para o site</span>
+      </div>
     </header>
     <main class="main">
       <NuxtPage />
@@ -19,6 +14,8 @@
 </template>
 
 <script setup>
+import { Undo2Icon } from 'lucide-vue-next';
+
 const isCollapsed = ref(false)
 function toggleSidebar() {
   isCollapsed.value = !isCollapsed.value
@@ -54,43 +51,33 @@ function toggleSidebar() {
   border-bottom: 1px solid #e2e8f0;
 }
 
-.header-user {
+.header-item {
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+  padding: 10px 20px;
 }
 
-.header-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
+.header-item:hover {
+  background: #f4f7fa;
+  padding: 10px 20px;
 }
 
-.header-name {
-  font-size: 0.875rem;
-  font-weight: 600;
+
+.header-item-icon {
+  width: 16px;
+  height: 16px;
+  color: #000;
 }
 
-.header-email {
+.header-item-text {
   font-size: 0.75rem;
-  color: #64748b;
+  font-weight: 30;
+  color: #000;
 }
-
-.header-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #edf2f7;
-}
-
-.header-avatar img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* Área de conteúdo: rola internamente; min-height: 0 para o grid dar espaço ao scroll */
 .main {
   overflow: auto;
