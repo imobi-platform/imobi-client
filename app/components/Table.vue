@@ -60,7 +60,7 @@ const props = defineProps({
 
 .table-inner {
   border: 1px solid #e2e8f0;
-  border-radius: 1.5rem;
+  border-radius: 2rem;
   overflow: hidden;
   min-width: min-content;
 }

@@ -7,17 +7,20 @@
         </Tabs>
         <form>
             <div v-show="activeTab === 'dados'" class="grid grid-cols-12 gap-4">
-                <InputNome v-model="imovel.nome" class="col-span-12 md:col-span-4" label="Nome do Imóvel"
+                <InputNome v-model="imovel.nome" class="col-span-12 md:col-span-6" label="Título do anúncio"
                     placeholder="Digite o nome do imóvel" autocomplete="off" required />
-                <Select v-model="imovel.tipo" class="col-span-12 md:col-span-4" label="Tipo"
+                <Select v-model="imovel.tipo" class="col-span-12 md:col-span-6" label="Tipo"
                     :options="['Casa', 'Apartamento', 'Terreno', 'Comercial']" required />
-                <Select v-model="imovel.finalidade" class="col-span-12 md:col-span-4" label="Finalidade"
-                    :options="['Venda']" required />
-                <InputPreco v-model="imovel.preco" class="col-span-12 md:col-span-4" label="Preço"
+                <InputPreco v-model="imovel.preco" class="col-span-12 md:col-span-6" label="Preço"
                     placeholder="Digite o preço do imóvel" autocomplete="off" required />
+                <Select v-model="imovel.finalidade" class="col-span-12 md:col-span-6" label="Finalidade"
+                    :options="['Venda']" required />
+                <Textarea v-model="imovel.descricao" required rows="4" label="Descrição"
+                    class="col-span-12 md:col-span-12" />
             </div>
             <div v-show="activeTab === 'localizacao'" class="grid grid-cols-12 gap-4">
-                <p class="col-span-12 text-placeholder">Conteúdo da aba localização (em breve).</p>
+                <InputCep v-model="imovel.cep" class="col-span-12 md:col-span-6" label="CEP" placeholder="Digite o CEP" autocomplete="off" required />
+                <SelectEstado v-model="imovel.estado" class="col-span-12 md:col-span-6" label="Estado" placeholder="Selecione o estado" autocomplete="off" required />
             </div>
         </form>
     </div>
@@ -41,6 +44,10 @@ const imovel = ref({
     tipo: null,
     finalidade: null,
     preco: null,
+    localizacao: {
+        cep: null,
+        estado: null,
+    }
 })
 
 const save = () => {

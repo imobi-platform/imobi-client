@@ -8,7 +8,7 @@
             :aria-expanded="isOpen"
             @click="toggle"
         >
-            <p class="preenchido">{{ seletedLabel }}</p>
+            <p class="preenchido">{{ selectedLabel }}</p>
             <svg class="setinha" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
                     d="M46.7878 72.7409L4.67209 34.3679C3.03912 32.8801 3.03912 30.4678 4.67209 28.98C6.30505 27.4921 8.95262 27.4921 10.5856 28.98L52.7013 67.3529C54.3343 68.8408 54.3342 71.2531 52.7013 72.7409C51.0683 74.2288 48.4207 74.2288 46.7878 72.7409Z" />
@@ -18,7 +18,20 @@
         </button>
         <div class="lista">
             <div class="conteudo">
-                <button v-for="option in options" :key="option" type="button" :class="{ ativo: modelValue === option }" @click="select(option)">{{ option }}</button>
+                <template v-if="loading">
+                    <p class="conteudo-loading">Carregando estados...</p>
+                </template>
+                <template v-else>
+                    <button
+                        v-for="opt in estados"
+                        :key="opt.value"
+                        type="button"
+                        :class="{ ativo: modelValue === opt.value }"
+                        @click="select(opt.value)"
+                    >
+                        {{ opt.label }}
+                    </button>
+                </template>
             </div>
         </div>
     </div>
@@ -48,34 +61,43 @@ function toggle() {
 }
 
 const props = defineProps({
-    label: {
-        type: String,
-        required: true
-    },
-    options: {
-        type: Array,
-        required: true
-    },
-    modelValue: {
-        type: String,
-        default: ''
-    },
-    required: {
-        type: Boolean,
-        default: false
-    }
-});
+    label: { type: String, default: 'Estado' },
+    modelValue: { type: String, default: '' },
+    required: { type: Boolean, default: false },
+})
 
-function select(option) {
-    emit('update:modelValue', option)
+/** Estados do Brasil (IBGE): value = sigla (UF), label = nome. Ordenados por nome. */
+const estados = ref([])
+const loading = ref(true)
+
+async function fetchEstados() {
+    loading.value = true
+    try {
+        const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+        const data = await response.json()
+        const sorted = [...data].sort((a, b) => a.nome.localeCompare(b.nome))
+        estados.value = sorted.map((item) => ({ value: item.sigla, label: item.nome }))
+    } catch {
+        estados.value = []
+    } finally {
+        loading.value = false
+    }
+}
+
+function select(value) {
+    emit('update:modelValue', value)
     close()
 }
 
+onMounted(fetchEstados)
 onBeforeUnmount(close)
 
-const seletedLabel = computed(() => {
-    return props.modelValue ||'Selecione uma opção';
-});
+const selectedLabel = computed(() => {
+    const v = props.modelValue
+    if (!v) return 'Selecione um estado'
+    const opt = estados.value.find((o) => o.value === v)
+    return opt ? opt.label : 'Selecione um estado'
+})
 
 </script>
 
@@ -183,6 +205,13 @@ const seletedLabel = computed(() => {
     flex-direction: column;
 }
 
+.conteudo-loading {
+    padding: 10px 25px;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
 .conteudo button {
     font-weight: 300;
    background: none;
@@ -207,6 +236,6 @@ const seletedLabel = computed(() => {
 
 .conteudo button:focus {
     outline: 1px solid var(--cor-preto);
-    outline-offset: 2px;
+    outline-offset: 1px;
 }
 </style>
