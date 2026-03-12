@@ -69,6 +69,7 @@ const props = defineProps({
 
 .textarea:focus {
     border-color: var(--cor-preto);
+    outline: none;
 }
 
 .campo textarea::placeholder {
