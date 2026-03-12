@@ -2,15 +2,21 @@
     <div class="topo">
         <div class="nome">
             <div class="icone">
-                <component :is="icon" class="icone-icon" size="20"/>
+                <component :is="icon" class="icone-icon" size="20" />
             </div>
             <p>{{ title }}</p>
+        </div>
+        <div v-if="button" class="item">
+            <div class="button" @click="button.onClick">
+                <component :is="button.icon" class="button-icon" size="20" />
+                <span class="button-text">{{ button.text }}</span>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ChartColumn } from 'lucide-vue-next';
+import { ChartColumn, Plus } from 'lucide-vue-next';
 
 const props = defineProps({
     title: {
@@ -21,6 +27,11 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    button: {
+        type: Object,
+        default: null,
+    },
+
 })
 </script>
 
@@ -50,7 +61,42 @@ const props = defineProps({
 }
 
 .topo .nome p {
-    font-size: 1rem;
+    font-size: 0.875rem;
     font-weight: 600;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.item .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: var(--cor-laranja);
+    border-radius: 50px;
+    cursor: pointer;
+    height: 50px;
+    width: auto;
+    padding: 0 20px;
+    transition: background-color 0.3s ease;
+}
+
+.item .button:hover {
+    background-color: var(--cor-preto);
+}
+
+.item .button .button-icon {
+    color: #fff;
+}
+
+.item .button .button-text {
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 300;
 }
 </style>

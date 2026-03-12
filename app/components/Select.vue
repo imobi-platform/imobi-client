@@ -19,12 +19,27 @@
 </template>
 
 <script setup>
-const isOpen = ref(false);
-const emit = defineEmits(['update:modelValue']);
+const campoRef = ref(null)
+const isOpen = ref(false)
+const emit = defineEmits(['update:modelValue'])
 
-const toggle = () => {
-    isOpen.value = !isOpen.value;
-};
+function close() {
+    isOpen.value = false
+    if (import.meta.client) document.removeEventListener('click', onDocumentClick)
+}
+
+function onDocumentClick(e) {
+    if (campoRef.value && !campoRef.value.contains(e.target)) close()
+}
+
+function toggle() {
+    if (isOpen.value) {
+        close()
+        return
+    }
+    isOpen.value = true
+    if (import.meta.client) setTimeout(() => document.addEventListener('click', onDocumentClick), 0)
+}
 
 const props = defineProps({
     label: {
@@ -46,9 +61,11 @@ const props = defineProps({
 });
 
 function select(option) {
-    emit('update:modelValue', option);
-    isOpen.value = false;
+    emit('update:modelValue', option)
+    close()
 }
+
+onBeforeUnmount(close)
 
 const seletedLabel = computed(() => {
     return props.modelValue ||'Selecione uma opção';
@@ -159,7 +176,7 @@ const seletedLabel = computed(() => {
 }
 
 .conteudo button.ativo {
-    color: #2563eb;
+    color: var(--cor-laranja);
     font-weight: 300;
 }
 
