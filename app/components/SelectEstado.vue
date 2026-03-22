@@ -17,13 +17,24 @@
             </svg>
         </button>
         <div class="lista">
+            <div v-if="!loading && estados.length > 0" class="lista-busca" @click.stop>
+                <Search class="lista-busca-icon" />
+                <input
+                    v-model="buscaQuery"
+                    type="text"
+                    class="lista-busca-input"
+                    placeholder="Buscar..."
+                    aria-label="Filtrar estados"
+                    @click.stop
+                />
+            </div>
             <div class="conteudo">
                 <template v-if="loading">
                     <p class="conteudo-loading">Carregando estados...</p>
                 </template>
                 <template v-else>
                     <button
-                        v-for="opt in estados"
+                        v-for="opt in estadosFiltrados"
                         :key="opt.value"
                         type="button"
                         :class="{ ativo: modelValue === opt.value }"
@@ -38,12 +49,16 @@
 </template>
 
 <script setup>
+import { Search } from 'lucide-vue-next'
+
 const campoRef = ref(null)
 const isOpen = ref(false)
+const buscaQuery = ref('')
 const emit = defineEmits(['update:modelValue'])
 
 function close() {
     isOpen.value = false
+    buscaQuery.value = ''
     if (import.meta.client) document.removeEventListener('click', onDocumentClick)
 }
 
@@ -83,6 +98,14 @@ async function fetchEstados() {
         loading.value = false
     }
 }
+
+const estadosFiltrados = computed(() => {
+    const q = buscaQuery.value.trim().toLowerCase()
+    if (!q) return estados.value
+    return estados.value.filter((opt) =>
+        opt.label.toLowerCase().includes(q)
+    )
+})
 
 function select(value) {
     emit('update:modelValue', value)
@@ -170,8 +193,10 @@ const selectedLabel = computed(() => {
     z-index: 50;
     background: #fff;
     width: 100%;
-    max-height: 280px;
-    overflow-y: auto;
+    max-height: 320px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     border: 1px solid #d1d5db;
     border-radius: 20px;
     padding: 5px;
@@ -179,6 +204,39 @@ const selectedLabel = computed(() => {
     visibility: hidden;
     pointer-events: none;
     transition: 0.3s;
+}
+
+.lista-busca {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    background: #f3f4f6;
+    border-radius: 16px;
+}
+
+.lista-busca-icon {
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.lista-busca-input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 0;
+    border: none;
+    background: transparent;
+    font-family: "Figtree", sans-serif;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.lista-busca-input::placeholder {
+    color: #9ca3af;
 }
 
 .campo.ativo {
@@ -203,6 +261,10 @@ const selectedLabel = computed(() => {
 .conteudo {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    max-height: 260px;
 }
 
 .conteudo-loading {

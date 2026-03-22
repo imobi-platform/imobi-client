@@ -9,7 +9,8 @@ import { ChartColumn, House, Building, User, DollarSign } from 'lucide-vue-next'
 import Cards from '@/components/Cards.vue';
 import SectionLabel from '@/components/SectionLabel.vue';
 definePageMeta({
-    layout: 'painel'
+    layout: 'painel',
+    middleware: 'auth'
 });
 
 const cards = [

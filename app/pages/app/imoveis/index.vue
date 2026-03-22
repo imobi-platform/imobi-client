@@ -1,8 +1,17 @@
 <template>
-  <div class="imoveis-page" :class="{ 'is-empty': itens.length === 0 }">
+  <div class="imoveis-page" :class="{ 'is-empty': itensFiltrados.length === 0 }">
     <SectionLabel title="Meus Imóveis" :icon="DoorOpen"
       :button="{ icon: Plus, text: 'Novo Imóvel', onClick: () => navigateTo('/app/imoveis/novo') }" />
-    <Table v-if="itens.length > 0" :fields="fields" :items="itens" striped>
+    <div v-if="itens.length > 0" class="busca-wrap">
+      <input
+        v-model="busca"
+        type="search"
+        class="busca-input"
+        placeholder="Buscar por imóvel, cidade, bairro..."
+        aria-label="Filtrar imóveis"
+      />
+    </div>
+    <Table v-if="itensFiltrados.length > 0" :fields="fields" :items="itensFiltrados" striped>
       <template #cell(valor)="data">
         {{ formatarMoeda(data.row.valor) }}
       </template>
@@ -10,7 +19,7 @@
         <DropdownMenu :options="opcoesParaLinha(data.row)" />
       </template>
     </Table>
-    <EmptyData v-else text="Nenhum imóvel encontrado" />
+    <EmptyData v-else :text="busca ? 'Nenhum imóvel encontrado para essa busca.' : 'Nenhum imóvel encontrado'" />
   </div>
 </template>
 
@@ -48,7 +57,21 @@ const itens = ref([
   { id: 2, imovel: 'Imóvel 2', imobiliaria: 'Imobiliária 2', cidade: 'Cidade 2', estado: 'Estado 2', bairro: 'Bairro 2', valor: 250000 },
 ])
 
-// const itens = ref([])
+const busca = ref('')
+
+const itensFiltrados = computed(() => {
+  const q = busca.value.trim().toLowerCase()
+  if (!q) return itens.value
+  return itens.value.filter((item) => {
+    return [
+      item.imovel,
+      item.imobiliaria,
+      item.cidade,
+      item.estado,
+      item.bairro,
+    ].some((v) => String(v ?? '').toLowerCase().includes(q))
+  })
+})
 
 function formatarMoeda(valor) {
   if (valor == null) return '—'
@@ -69,5 +92,28 @@ function formatarMoeda(valor) {
   margin-bottom: 0;
 }
 
-/* Ocupa todo o espaço abaixo do SectionLabel, sem scroll; texto centralizado no meio da tela */
+.busca-wrap {
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.busca-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  font-family: "Figtree", sans-serif;
+  font-size: 0.875rem;
+  background: #fff;
+  outline: none;
+}
+
+.busca-input:focus {
+  border-color: var(--cor-preto);
+}
+
+.busca-input::placeholder {
+  color: #9ca3af;
+}
 </style>

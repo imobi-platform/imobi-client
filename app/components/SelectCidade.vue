@@ -1,14 +1,15 @@
 <template>
-    <div ref="campoRef" class="campo" :class="{ ativo: isOpen }">
+    <div ref="campoRef" class="campo" :class="{ ativo: isOpen, 'campo--disabled': !estado }">
         <label>{{ label }} <span v-if="required">*</span></label>
         <button
             type="button"
             class="input"
+            :disabled="!estado"
             aria-haspopup="listbox"
             :aria-expanded="isOpen"
             @click="toggle"
         >
-            <p class="preenchido">{{ seletedLabel }}</p>
+            <p class="preenchido">{{ selectedLabel }}</p>
             <svg class="setinha" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path
                     d="M46.7878 72.7409L4.67209 34.3679C3.03912 32.8801 3.03912 30.4678 4.67209 28.98C6.30505 27.4921 8.95262 27.4921 10.5856 28.98L52.7013 67.3529C54.3343 68.8408 54.3342 71.2531 52.7013 72.7409C51.0683 74.2288 48.4207 74.2288 46.7878 72.7409Z" />
@@ -17,27 +18,32 @@
             </svg>
         </button>
         <div class="lista">
-            <div class="lista-busca" @click.stop>
+            <div v-if="!loading && cidades.length > 0" class="lista-busca" @click.stop>
                 <Search class="lista-busca-icon" />
                 <input
                     v-model="buscaQuery"
                     type="text"
                     class="lista-busca-input"
                     placeholder="Buscar..."
-                    aria-label="Filtrar opções"
+                    aria-label="Filtrar cidades"
                     @click.stop
                 />
             </div>
             <div class="conteudo">
-                <button
-                    v-for="option in optionsFiltradas"
-                    :key="option"
-                    type="button"
-                    :class="{ ativo: modelValue === option }"
-                    @click="select(option)"
-                >
-                    {{ option }}
-                </button>
+                <template v-if="loading">
+                    <p class="conteudo-loading">Carregando cidades...</p>
+                </template>
+                <template v-else>
+                    <button
+                        v-for="opt in cidadesFiltradas"
+                        :key="opt.value"
+                        type="button"
+                        :class="{ ativo: modelValue == opt.value }"
+                        @click="select(opt.value)"
+                    >
+                        {{ opt.label }}
+                    </button>
+                </template>
             </div>
         </div>
     </div>
@@ -46,10 +52,24 @@
 <script setup>
 import { Search } from 'lucide-vue-next'
 
+const props = defineProps({
+    /** Sigla do estado (UF) selecionado. Quando vazio, o campo fica desabilitado. */
+    estado: { type: String, default: '' },
+    /** ID do município (IBGE) ou nome, conforme options. */
+    modelValue: { default: null },
+    label: { type: String, default: 'Cidade' },
+    required: { type: Boolean, default: false },
+})
+
+const emit = defineEmits(['update:modelValue'])
+
 const campoRef = ref(null)
 const isOpen = ref(false)
 const buscaQuery = ref('')
-const emit = defineEmits(['update:modelValue'])
+
+/** Municípios do estado (IBGE): value = id, label = nome. Ordenados por nome. */
+const cidades = ref([])
+const loading = ref(false)
 
 function close() {
     isOpen.value = false
@@ -57,11 +77,20 @@ function close() {
     if (import.meta.client) document.removeEventListener('click', onDocumentClick)
 }
 
+const cidadesFiltradas = computed(() => {
+    const q = buscaQuery.value.trim().toLowerCase()
+    if (!q) return cidades.value
+    return cidades.value.filter((opt) =>
+        opt.label.toLowerCase().includes(q)
+    )
+})
+
 function onDocumentClick(e) {
     if (campoRef.value && !campoRef.value.contains(e.target)) close()
 }
 
 function toggle() {
+    if (!props.estado) return
     if (isOpen.value) {
         close()
         return
@@ -70,32 +99,44 @@ function toggle() {
     if (import.meta.client) setTimeout(() => document.addEventListener('click', onDocumentClick), 0)
 }
 
-const props = defineProps({
-    label: { type: String, required: true },
-    options: { type: Array, required: true },
-    modelValue: { type: String, default: '' },
-    required: { type: Boolean, default: false },
-})
+async function fetchCidades() {
+    if (!props.estado) {
+        cidades.value = []
+        return
+    }
+    loading.value = true
+    try {
+        const uf = encodeURIComponent(props.estado)
+        const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`)
+        const data = await response.json()
+        const sorted = [...data].sort((a, b) => a.nome.localeCompare(b.nome))
+        cidades.value = sorted.map((item) => ({ value: item.id, label: item.nome }))
+    } catch {
+        cidades.value = []
+    } finally {
+        loading.value = false
+    }
+}
 
-const optionsFiltradas = computed(() => {
-    const q = buscaQuery.value.trim().toLowerCase()
-    if (!q) return props.options
-    return props.options.filter((opt) =>
-        String(opt).toLowerCase().includes(q)
-    )
-})
-
-function select(option) {
-    emit('update:modelValue', option)
+function select(value) {
+    emit('update:modelValue', value)
     close()
 }
 
+watch(() => props.estado, (novo, antigo) => {
+    fetchCidades()
+    if (antigo !== undefined && novo !== antigo) emit('update:modelValue', null)
+}, { immediate: true })
+
 onBeforeUnmount(close)
 
-const seletedLabel = computed(() => {
-    return props.modelValue ||'Selecione uma opção';
-});
-
+const selectedLabel = computed(() => {
+    if (!props.estado) return 'Selecione o estado primeiro'
+    const v = props.modelValue
+    if (v === '' || v == null) return 'Selecione uma cidade'
+    const opt = cidades.value.find((o) => o.value == v)
+    return opt ? opt.label : 'Selecione uma cidade'
+})
 </script>
 
 <style scoped>
@@ -147,6 +188,15 @@ const seletedLabel = computed(() => {
     border-color: var(--cor-preto);
 }
 
+.input:disabled {
+    cursor: not-allowed;
+    background: #fff;
+}
+
+.campo--disabled .preenchido {
+    color: var(--cor-preto);
+}
+
 .preenchido {
     margin: 0;
     color: #000;
@@ -158,6 +208,10 @@ const seletedLabel = computed(() => {
     color: #6b7280;
     flex-shrink: 0;
     transition: 0.3s;
+}
+
+.input:disabled .setinha {
+    color: #9ca3af;
 }
 
 .lista {
@@ -188,7 +242,7 @@ const seletedLabel = computed(() => {
     padding: 6px 10px;
     margin-bottom: 4px;
     background: #f3f4f6;
-    border-radius: 12px;
+    border-radius: 16px;
 }
 
 .lista-busca-icon {
@@ -213,19 +267,6 @@ const seletedLabel = computed(() => {
     color: #9ca3af;
 }
 
-.conteudo {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    max-height: 260px;
-}
-
-.campo.ativo {
-    z-index: 50;
-}
-
 .campo.ativo .lista {
     opacity: 1;
     visibility: visible;
@@ -241,17 +282,33 @@ const seletedLabel = computed(() => {
     color: #2563eb;
 }
 
+.conteudo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    max-height: 260px;
+}
+
+.conteudo-loading {
+    padding: 10px 25px;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
 .conteudo button {
     font-weight: 300;
-   background: none;
-   border: none;
-   padding: 10px 25px;
-   text-align: left;
-   font-family: "Figtree", sans-serif;
-   font-size: 1rem;
-   color: #6b7280;
-   cursor: pointer;
-   border-radius: 14px
+    background: none;
+    border: none;
+    padding: 10px 25px;
+    text-align: left;
+    font-family: "Figtree", sans-serif;
+    font-size: 1rem;
+    color: #6b7280;
+    cursor: pointer;
+    border-radius: 14px;
 }
 
 .conteudo button.ativo {
@@ -264,7 +321,7 @@ const seletedLabel = computed(() => {
 }
 
 .conteudo button:focus {
-    outline: 1px solid var(--cor-preto);
+    outline: 2px solid var(--cor-preto);
     outline-offset: 2px;
 }
 </style>

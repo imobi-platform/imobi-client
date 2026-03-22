@@ -20,7 +20,8 @@
             </div>
             <div v-show="activeTab === 'localizacao'" class="grid grid-cols-12 gap-4">
                 <InputCep v-model="imovel.cep" class="col-span-12 md:col-span-6" label="CEP" placeholder="Digite o CEP" autocomplete="off" required />
-                <SelectEstado v-model="imovel.estado" class="col-span-12 md:col-span-6" label="Estado" placeholder="Selecione o estado" autocomplete="off" required />
+                <SelectEstado v-model="imovel.estado" class="col-span-12 md:col-span-6" label="Estado" required />
+                <SelectCidade v-model="imovel.cidade" :estado="imovel.estado" class="col-span-12 md:col-span-6" label="Cidade" required />
             </div>
         </form>
     </div>
@@ -34,24 +35,34 @@ import Tab from '@/components/Tab.vue'
 import InputNome from '~/components/InputNome.vue'
 import Select from '~/components/Select.vue'
 import InputPreco from '~/components/InputPreco.vue'
+import SelectEstado from '@/components/SelectEstado.vue'
+import SelectCidade from '@/components/SelectCidade.vue'
 
 definePageMeta({ layout: 'painel' })
 
-const activeTab = ref('dados')
+const activeTab = ref('localizacao')
 
 const imovel = ref({
     nome: '',
     tipo: null,
     finalidade: null,
     preco: null,
-    localizacao: {
-        cep: null,
-        estado: null,
-    }
+    descricao: '',
+    cep: '',
+    estado: '',
+    cidade: null,
 })
 
-const save = () => {
-    console.log(imovel.value)
+const save = async () => {
+    try {
+        const response = await $fetch('/api/imoveis', {
+            method: 'POST',
+            body: imovel.value
+        })
+        console.log(response)
+    } catch (error) {
+        console.error(error)
+    }
 }
 </script>
 
