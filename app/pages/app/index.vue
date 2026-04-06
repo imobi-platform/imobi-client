@@ -1,6 +1,5 @@
 <template>
    <SectionLabel title="Dashboard" :icon="ChartColumn" />
-
     <Cards :cards="cards" />
 </template>
 
