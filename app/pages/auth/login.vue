@@ -9,14 +9,13 @@
 </template>
 
 <script setup>
-// const { login } = useAuth()
-const email = ref('developer@imobi.com')
-const senha = ref('secret')
+const { login } = useAuth()
+const email = ref('pablo@gmail.com')
+const senha = ref('12345678')
 
 definePageMeta({ middleware: 'guest' })
 
 const handleLogin = async () => {
-    await navigateTo('/app')
-    // await login(email.value, senha.value)
+    await login(email.value, senha.value)
 }
 </script>
