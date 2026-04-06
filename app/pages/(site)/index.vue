@@ -1,11 +1,12 @@
 <template>
-    home
+    homeasds
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+await navigateTo('/app/');
+// import { onMounted } from 'vue';
 
-onMounted(() => {
-    navigateTo('/app/');
-});
+// onMounted(() => {
+//     navigateTo('/app');
+// });
 </script> 
