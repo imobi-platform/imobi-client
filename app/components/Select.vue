@@ -17,7 +17,7 @@
             </svg>
         </button>
         <div class="lista">
-            <div class="lista-busca" @click.stop>
+            <div v-if="searchable" class="lista-busca" @click.stop>
                 <Search class="lista-busca-icon" />
                 <input
                     v-model="buscaQuery"
@@ -31,12 +31,12 @@
             <div class="conteudo">
                 <button
                     v-for="option in optionsFiltradas"
-                    :key="option"
+                    :key="option.value"
                     type="button"
-                    :class="{ ativo: modelValue === option }"
+                    :class="{ ativo: modelValue === option.value }"
                     @click="select(option)"
                 >
-                    {{ option }}
+                    {{ option.label }}
                 </button>
             </div>
         </div>
@@ -75,9 +75,11 @@ const props = defineProps({
     options: { type: Array, required: true },
     modelValue: { type: String, default: '' },
     required: { type: Boolean, default: false },
+    searchable: { type: Boolean, default: false },
 })
 
 const optionsFiltradas = computed(() => {
+    if (!props.searchable) return props.options
     const q = buscaQuery.value.trim().toLowerCase()
     if (!q) return props.options
     return props.options.filter((opt) =>
@@ -86,15 +88,16 @@ const optionsFiltradas = computed(() => {
 })
 
 function select(option) {
-    emit('update:modelValue', option)
+    emit('update:modelValue', option.value)
     close()
 }
 
 onBeforeUnmount(close)
 
 const seletedLabel = computed(() => {
-    return props.modelValue ||'Selecione uma opção';
-});
+    const found = props.options.find(o => o.value === props.modelValue)
+    return found ? found.label : 'Selecione uma opção'
+})
 
 </script>
 

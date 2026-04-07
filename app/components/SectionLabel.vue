@@ -7,7 +7,7 @@
             <p>{{ title }}</p>
         </div>
         <div v-if="button" class="item">
-            <div class="button" @click="button.onClick">
+            <div class="button" @click="handleButtonClick">
                 <component :is="button.icon" class="button-icon" size="20" />
                 <span class="button-text">{{ button.text }}</span>
             </div>
@@ -33,6 +33,12 @@ const props = defineProps({
     },
 
 })
+
+function handleButtonClick() {
+    if (props.button.onClick) {
+        props.button.onClick()
+    }
+}
 </script>
 
 <style scoped>

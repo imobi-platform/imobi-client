@@ -1,12 +1,11 @@
 <template>
     <div class="campo">
-        <label for="nome">{{ label }} <span v-if="required">*</span></label>
-        <input id="nome" type="text" v-maska="'#####-###'" :placeholder="placeholder" :autocomplete="autocomplete" :required="required" v-model="inputValue">
+        <label for="endereco">{{ label }} <span v-if="required">*</span></label>
+        <input id="endereco" type="text" :placeholder="placeholder" :autocomplete="autocomplete" :required="required" v-model="inputValue">
     </div>
 </template>
 
 <script setup>
-import { vMaska } from 'maska/vue'
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -25,7 +24,8 @@ const props = defineProps({
     },
     placeholder: {
         type: String,
-        required: true
+        required: false,
+        default: 'Rua Manoel João Machado, 780'
     },
     autocomplete: {
         type: String,

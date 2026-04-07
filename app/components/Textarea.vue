@@ -1,7 +1,7 @@
 <template>
     <div class="campo">
         <label for="textarea">{{ label }} <span v-if="required">*</span></label>
-        <textarea class="textarea" :rows="rows" placeholder="Digite a descrição do imóvel" :maxlength="maxlength"></textarea>
+        <textarea :value="modelValue" @input="onInput" class="textarea" :rows="rows" placeholder="Digite a descrição do imóvel" :maxlength="maxlength"></textarea>
     </div>
 </template>
 
@@ -23,7 +23,18 @@ const props = defineProps({
         type: Number,
         default: 1000,
     },
+    modelValue: {
+        type: String,
+        required: true,
+    },
 })
+
+function onInput(e) {
+    emit('update:modelValue', e.target.value)
+}
+
+const emit = defineEmits(['update:modelValue'])
+
 </script>
 
 <style scoped>

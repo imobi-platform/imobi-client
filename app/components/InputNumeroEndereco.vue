@@ -1,12 +1,12 @@
 <template>
+    <!-- TODO:: Adicionar botão para setar S/N -->
     <div class="campo">
-        <label for="nome">{{ label }} <span v-if="required">*</span></label>
-        <input id="nome" type="text" v-maska="'#####-###'" :placeholder="placeholder" :autocomplete="autocomplete" :required="required" v-model="inputValue">
+        <label for="numero-endereco">{{ label }} <span v-if="required">*</span></label>
+        <input id="numero-endereco" type="number" :placeholder="placeholder" :autocomplete="autocomplete" :required="required" v-model="inputValue">
     </div>
 </template>
 
 <script setup>
-import { vMaska } from 'maska/vue'
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -25,7 +25,8 @@ const props = defineProps({
     },
     placeholder: {
         type: String,
-        required: true
+        required: false,
+        default: 'Ex: 780'
     },
     autocomplete: {
         type: String,
