@@ -46,6 +46,7 @@
                 <img src="https://i.pravatar.cc/300" alt="Avatar">
             </div>
             <span class="sidebar-perfil-nome">Pablo</span>
+            <button @click="handleLogout" class="text-xs">sair</button>
         </div>
     </aside>
     <Teleport to="body">
@@ -84,6 +85,12 @@ import {
     MinusSquare,
     DoorOpen,
 } from 'lucide-vue-next'
+
+const { logout } = useAuth()
+
+const handleLogout = async () => {
+    await logout()
+}
 
 const grupos = [
     {

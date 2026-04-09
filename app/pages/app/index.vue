@@ -10,7 +10,6 @@ import Cards from '@/components/Cards.vue';
 import SectionLabel from '@/components/SectionLabel.vue';
 definePageMeta({
     layout: 'painel',
-    middleware: 'auth'
 });
 
 const cards = [

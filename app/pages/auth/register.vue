@@ -13,10 +13,9 @@
 <script setup>
 const { register } = useAuth()
 const nome = ref('Pablo Alves da Silva')
-const email = ref('pablo@gmail.com')
-const senha = ref('12345678')
-const confirmarSenha = ref('12345678')
-
+const email = ref('pabloalveszimba@gmail.com')
+const senha = ref('Pads529108$')
+const confirmarSenha = ref('Pads52910@')
 
 const handleRegister = async () => {
     try {

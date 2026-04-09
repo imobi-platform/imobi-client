@@ -19,7 +19,7 @@ export function useAuth() {
             body: {name, email, password, password_confirmation}
         })
         user.value = response.user
-        await navigateTo('/app')
+        await navigateTo('/onboarding')
     }
 
     async function login(email, password) {
