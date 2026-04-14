@@ -1,6 +1,7 @@
 <template>
     <div class="flex h-screen items-center justify-center">
         <div class="flex flex-col gap-4">
+            <button @click="goBack">voltar</button>
             <div class="flex flex-col gap-1">
                 <label for="nome">Nome (pree prenchido com o nome do usuario)</label>
                 <input id="nome" type="text" placeholder="nome completo" class="border" v-model="anunciante.nome">
@@ -40,6 +41,10 @@ async function handleSave() {
         console.error(error)
     }
     
+}
+
+function goBack() {
+    navigateTo('/onboarding')
 }
 
 </script>

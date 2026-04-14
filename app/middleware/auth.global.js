@@ -23,12 +23,5 @@ export default defineNuxtRouteMiddleware((to) => {
     if (isOnboardingRoute) {
         if (!isLoggedIn.value) return navigateTo('/auth/login')
         if (user.value?.onboarding_completo) return navigateTo('/app') 
-        
-        // redireciona para a sub-rota correta do onboarding
-        // if (to.path === '/onboarding' && !user.value?.onboarding_status) {
-        //     if (user.value?.role === 'anunciante') return navigateTo('/onboarding/anunciante')
-        //     if (user.value?.role === 'corretor') return navigateTo('/onboarding/corretor')
-        //     if (user.value?.role === 'imobiliaria') return navigateTo('/onboarding/imobiliaria')
-        // }
     }
 })

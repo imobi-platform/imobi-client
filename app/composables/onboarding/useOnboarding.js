@@ -21,8 +21,18 @@ export function useOnboarding() {
         await navigateTo('/app')
     }
 
+    async function salvarCorretor(dados) {
+        await api('/api/onboarding/corretor', {
+            method: 'POST',
+            body: dados,
+        })
+        await fetchUser()
+        await navigateTo('/app')
+    }
+
     return {
         salvarAnunciante,
+        salvarCorretor,
         salvarPapel,
     }
 }

@@ -11,8 +11,8 @@
 
 <script setup>
 const { login } = useAuth()
-const email = ref('pablo@gmail.com')
-const senha = ref('12345678')
+const email = ref('pabloalveszimba@gmail.com')
+const senha = ref('Pads529108$')
 
 const handleLogin = async () => {
     await login(email.value, senha.value)

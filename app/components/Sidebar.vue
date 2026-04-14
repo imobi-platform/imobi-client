@@ -45,7 +45,7 @@
             <div class="sidebar-perfil-avatar">
                 <img src="https://i.pravatar.cc/300" alt="Avatar">
             </div>
-            <span class="sidebar-perfil-nome">Pablo</span>
+            <span class="sidebar-perfil-nome">{{ user?.name }}</span>
             <button @click="handleLogout" class="text-xs">sair</button>
         </div>
     </aside>
@@ -65,6 +65,7 @@
 </template>
 
 <script setup lang="ts">
+const { user } = useAuth()
 import {
     ChevronLeft,
     ChevronRight,
